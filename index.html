@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>KAMTIBTREN</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a3c2e, #2c3e50, #4b0082);
+      color: white;
+      text-align: center;
+    }
+    header { padding: 20px; }
+    header h1 { margin: 0; font-size: 36px; }
+    header p { margin: 5px 0 20px; font-size: 18px; }
+    nav {
+      background: rgba(0,0,0,0.5);
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    nav button {
+      padding: 12px 25px;
+      border-radius: 30px;
+      border: none;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(135deg, #2ecc71, #8e44ad);
+      cursor: pointer;
+    }
+    nav button:hover { opacity: 0.8; }
+    .container {
+      margin: 30px auto;
+      width: 80%;
+      max-width: 700px;
+      background: white;
+      color: black;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button.action {
+      padding: 10px 20px;
+      border: none;
+      background: linear-gradient(135deg, #27ae60, #8e44ad);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th { background: #eee; }
+    .hidden { display: none; }
+    .login-box {
+      margin: 100px auto;
+      width: 300px;
+      background: rgba(255,255,255,0.9);
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>KAMTIBTREN</h1>
+    <p>إِنَّا لِلّهِ وَإِنَّـا إِلَيْهِ رَاجِعونَ</p>
+  </header>
+
+  <!-- Login -->
+  <div id="loginPage" class="login-box">
+    <h2>Login Admin</h2>
+    <input type="text" id="username" placeholder="Username"><br><br>
+    <input type="password" id="password" placeholder="Password"><br><br>
+    <button class="action" onclick="login()">Login</button>
+    <p id="loginError" style="color:red"></p>
+  </div>
+
+  <!-- Menu Navigasi -->
+  <nav id="menuNav" class="hidden">
+    <button onclick="showPage('izinPage')">Perizinan</button>
+    <button onclick="showPage('santriPage')">Data Santri</button>
+    <button onclick="showPage('laporanPage')">Laporan</button>
+    <button onclick="logout()">Logout</button>
+  </nav>
+
+  <!-- Halaman Perizinan -->
+  <div id="izinPage" class="container hidden">
+    <h2>Form Perizinan Pulang</h2>
+    <input type="text" id="namaSantri" placeholder="Nama Santri"><br>
+    <input type="text" id="kamarSantri" placeholder="Kamar / Komplek"><br>
+    <input type="date" id="tglIzin"><br>
+    <input type="date" id="tglPulang"><br>
+    <textarea id="alasan" placeholder="Alasan Izin"></textarea><br>
+    <button class="action" onclick="simpanIzin()">Simpan</button>
+  </div>
+
+  <!-- Halaman Data Santri -->
+  <div id="santriPage" class="container hidden">
+    <h2>Data Santri</h2>
+    <table id="tabelSantri">
+      <tr><th>Nama</th><th>Kamar</th></tr>
+    </table>
+  </div>
+
+  <!-- Halaman Laporan -->
+  <div id="laporanPage" class="container hidden">
+    <h2>Laporan Perizinan</h2>
+    <input type="text" id="cariNama" placeholder="Cari nama santri">
+    <button class="action" onclick="cariLaporan()">Cari</button>
+    <table id="tabelLaporan">
+      <tr><th>Nama</th><th>Kamar</th><th>Tgl Izin</th><th>Tgl Pulang</th><th>Alasan</th></tr>
+    </table>
+  </div>
+
+<script>
+  // Dummy login
+  const adminUser = {username: "admin", password: "123"};
+  let dataIzin = [];
+
+  function login(){
+    let u = document.getElementById("username").value;
+    let p = document.getElementById("password").value;
+    if(u===adminUser.username && p===adminUser.password){
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("menuNav").classList.remove("hidden");
+      showPage('izinPage');
+    } else {
+      document.getElementById("loginError").innerText = "Username/Password salah!";
+    }
+  }
+
+  function logout(){
+    location.reload();
+  }
+
+  function showPage(pageId){
+    ["izinPage","santriPage","laporanPage"].forEach(id=>{
+      document.getElementById(id).classList.add("hidden");
+    });
+    document.getElementById(pageId).classList.remove("hidden");
+  }
+
+function simpanIzin(){
+  let nama = document.getElementById("namaSantri").value;
+  let kamar = document.getElementById("kamarSantri").value;
+  let tglIzin = document.getElementById("tglIzin").value;
+  let tglPulang = document.getElementById("tglPulang").value;
+  let alasan = document.getElementById("alasan").value;
+
+  if(nama && kamar && tglIzin && tglPulang && alasan){
+    let data = {nama, kamar, tglIzin, tglPulang, alasan};
+
+    // Simpan ke Google Spreadsheet
+    fetch("https://script.google.com/macros/s/AKfycbx-C_h0nTb9DsUkzKqG6UD1EsHz3y9IKIcpQx3kOPVzD9ZBVJ8HZm3m148EGLdgKdTm/exec", {
+  method: "POST",
+  mode: "no-cors",   // tambah ini
+  body: JSON.stringify(data),
+  headers: {"Content-Type": "application/json"}
+})
+.then(() => {
+  alert("Data dikirim ke Google Spreadsheet!");
+})
+.catch(err => {
+  console.error("Error:", err);
+  alert("Gagal menyimpan ke Google Spreadsheet!");
+});
+
+
+    // tetap simpan juga di memori lokal untuk tampilan
+    dataIzin.push(data);
+    updateSantri();
+    updateLaporan();
+
+    // reset form
+    document.getElementById("namaSantri").value="";
+    document.getElementById("kamarSantri").value="";
+    document.getElementById("tglIzin").value="";
+    document.getElementById("tglPulang").value="";
+    document.getElementById("alasan").value="";
+  } else {
+    alert("Harap isi semua field!");
+  }
+}
+
+
+  function updateSantri(){
+    let tabel = document.getElementById("tabelSantri");
+    tabel.innerHTML = "<tr><th>Nama</th><th>Kamar</th></tr>";
+    let unik = {};
+    dataIzin.forEach(d=>{
+      if(!unik[d.nama]){
+        unik[d.nama]=d.kamar;
+        tabel.innerHTML += `<tr><td>${d.nama}</td><td>${d.kamar}</td></tr>`;
+      }
+    });
+  }
+
+  function updateLaporan(){
+    let tabel = document.getElementById("tabelLaporan");
+    tabel.innerHTML = "<tr><th>Nama</th><th>Kamar</th><th>Tgl Izin</th><th>Tgl Pulang</th><th>Alasan</th></tr>";
+    dataIzin.forEach(d=>{
+      tabel.innerHTML += `<tr>
+        <td>${d.nama}</td>
+        <td>${d.kamar}</td>
+        <td>${d.tglIzin}</td>
+        <td>${d.tglPulang}</td>
+        <td>${d.alasan}</td>
+      </tr>`;
+    });
+  }
+
+  function cariLaporan(){
+    let keyword = document.getElementById("cariNama").value.toLowerCase();
+    let tabel = document.getElementById("tabelLaporan");
+    tabel.innerHTML = "<tr><th>Nama</th><th>Kamar</th><th>Tgl Izin</th><th>Tgl Pulang</th><th>Alasan</th></tr>";
+    dataIzin.filter(d=>d.nama.toLowerCase().includes(keyword)).forEach(d=>{
+      tabel.innerHTML += `<tr>
+        <td>${d.nama}</td>
+        <td>${d.kamar}</td>
+        <td>${d.tglIzin}</td>
+        <td>${d.tglPulang}</td>
+        <td>${d.alasan}</td>
+      </tr>`;
+    });
+  }
+</script>
+</body>
+</html>
